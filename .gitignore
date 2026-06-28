@@ -1,0 +1,10 @@
+# never commit the symlink to your agents dir, OS cruft
+.claude
+.agents
+.DS_Store
+
+# personal teaching-workspace notes — keep private, not part of the public site
+MISSION.md
+NOTES.md
+RESOURCES.md
+learning-records/

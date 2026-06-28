@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 01 · The hard part isn't the tokens</title>
+<link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Tokenised LLM · Lesson 01 · Feasibility</p>
+  <h1>The hard part isn't the tokens</h1>
+  <p class="dek">Why <em>attribution</em>, not payment, decides whether a tokenised LLM is buildable — and the one diagram that lets you judge any pitch on sight.</p>
+
+  <p>Your mission is a verdict: is a tokenised LLM — one that pays people when someone else's query uses their knowledge — actually worth building? To answer that you need to know where the difficulty really lives. This lesson plants the flag.</p>
+
+  <h2>Every tokenised LLM is two layers</h2>
+  <p>Pull any such system apart and you find the same two layers:</p>
+
+  <table>
+    <tr><th>Layer</th><th>Question it answers</th><th>How hard</th></tr>
+    <tr><td><strong>Attribution</strong></td><td>Whose contribution was responsible for <em>this</em> answer, and how much?</td><td>Very hard</td></tr>
+    <tr><td><strong>Settlement</strong></td><td>How do we pay them for it?</td><td>Mostly solved</td></tr>
+  </table>
+
+  <p>The token machinery — wallets, smart contracts, splitting a payment ten ways — is ordinary plumbing. It works today. So the feasibility of the <em>whole idea</em> collapses onto one question: <strong>can you honestly say who contributed to an answer?</strong> That depends entirely on how you build the model.</p>
+
+  <div class="keyidea">
+    <div class="label">The one mental model</div>
+    <p><strong>The Bake ↔ Retrieve spectrum.</strong> The more a contributor's knowledge is <em>baked</em> into the model's weights, the harder it is to attribute. The more it stays in <em>retrievable</em>, discrete units, the easier. Where a system sits on this line tells you how defensible its reward claim is.</p>
+  </div>
+
+  <div class="spectrum">
+    <div class="spectrum-bar"></div>
+    <div class="spectrum-ends">
+      <span><b>Retrieve</b>knowledge kept separate (RAG)<br>→ attribution is <em>provable</em></span>
+      <span style="text-align:right"><b>Bake</b>knowledge fused into weights<br>→ attribution is <em>approximate</em></span>
+    </div>
+  </div>
+
+  <h2>Why baking makes attribution hard</h2>
+  <p>When you train (or fine-tune) one model on everyone's data, each contribution is smeared across billions of parameters. To recover "how much did Alice's document matter to this output?" you can't just look it up — you have to <em>estimate</em> it. The two serious tools for this both have a sting:</p>
+
+  <ul>
+    <li><strong>Influence functions</strong> (e.g. TRAK) estimate a training example's effect without retraining — but at LLM scale they stay <em>approximate</em> and assumption-laden; they assume the model perfectly minimised its training error, and real "fitting errors" corrupt the scores.<a class="cite" href="#r1">1</a><a class="cite" href="#r2">2</a></li>
+    <li><strong>Data Shapley</strong> gives a <em>provably fair</em> split borrowed from game theory — but exact computation requires retraining the model on every possible subset of the data. That's astronomically expensive; in practice you can only approximate it.<a class="cite" href="#r3">3</a></li>
+  </ul>
+
+  <p class="aside">Notice the bind: the method that's <em>fair</em> (Shapley) is intractable, and the method that's <em>tractable</em> (influence functions) is only approximate. Neither gives you a number you'd happily defend to a contributor who asks "why was I paid £3 and not £30?" — and that disputability is itself a feasibility risk.</p>
+
+  <h2>Why retrieval makes it provable</h2>
+  <p>Now flip to the other end. Keep each contribution as a discrete document in a store. The base model does the <em>reasoning</em>; the knowledge is <em>retrieved</em> at query time. When a query pulls in Alice's chunk and Bob's chunk to build the answer, you have a <strong>log</strong>: these chunks, this query, this much weight each. That log is auditable. You can pay against it without anyone having to trust a black-box estimate.</p>
+
+  <p>This is why, for a feasibility-minded build, the retrieve end is the pragmatic home base — not because it's fashionable, but because <em>the attribution is real</em>. The trade-off: you only attribute what was <em>retrieved</em>, not the base model's own latent reasoning. That's a scope you can live with; an undefendable payment isn't.</p>
+
+  <!-- INTERACTIVE TASK -->
+  <div class="task">
+    <div class="label">Your task · 2 min</div>
+    <h2 style="margin-top:.2rem">Locate it on the spectrum</h2>
+    <p class="sans" style="font-size:.9rem;color:var(--ink-soft)">For each system, pick the verdict that matches. Click to check — you get instant feedback.</p>
+
+    <div class="q" data-correct="1">
+      <p><strong>A.</strong> A startup fine-tunes one large model on everyone's uploaded documents, then promises to pay contributors "fairly" from usage.</p>
+      <div class="choices">
+        <button class="choice">Provable, cheap, undisputed</button>
+        <button class="choice">Approximate, costly, easily disputed</button>
+        <button class="choice">Trivial, exact, instant</button>
+      </div>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="q" data-correct="0">
+      <p><strong>B.</strong> Each query retrieves the three most relevant contributed documents; the answer cites them and logs the retrieval.</p>
+      <div class="choices">
+        <button class="choice">Auditable log, payable directly</button>
+        <button class="choice">Hidden inside model weights</button>
+        <button class="choice">Needs exhaustive model retraining</button>
+      </div>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="q" data-correct="2">
+      <p><strong>C.</strong> Contributors each train a small owned LoRA adapter; a router activates whichever adapters a query needs.</p>
+      <div class="choices">
+        <button class="choice">Fully baked, unattributable forever</button>
+        <button class="choice">Pure retrieval, perfectly logged</button>
+        <button class="choice">Middle — routing is the signal</button>
+      </div>
+      <div class="feedback"></div>
+    </div>
+  </div>
+
+  <h2>The win</h2>
+  <p>You can now do the thing the mission asks: take any "tokenised / decentralised AI" pitch and immediately ask <em>where does its knowledge live?</em> If the honest answer is "baked into one model," its attribution — and therefore its whole fairness claim — rests on approximations. That's not fatal, but it's the question that separates real from hand-wavy.</p>
+
+  <div class="ask-teacher">
+    <b>I'm your teacher — ask me anything.</b> Stuck on why influence functions are "approximate"? Want the RAG end drawn out as a concrete data flow? Curious whether a hybrid can attribute the baked part too? Just ask in the chat and I'll go deeper or build a follow-up lesson.
+  </div>
+
+  <h3>Read this next (primary source)</h3>
+  <p>The clearest real-world cautionary tale: <a href="https://arxiv.org/html/2507.02951v1">“Bittensor Protocol: The Bitcoin in Decentralized AI? A Critical and Empirical Analysis”</a>. Skim the abstract and the critique section — it shows a <em>live</em> tokenised-AI network whose rewards end up tracking <em>stake</em>, not contribution quality. That failure mode is Lesson 03.<a class="cite" href="#r4">4</a></p>
+
+  <div class="lesson-footer">
+    <a href="../reference/GLOSSARY.html">📖 Glossary</a>
+    <a href="../index.html">🏠 Course home</a>
+    <span class="sans" style="color:var(--ink-soft)">Next → Lesson 02: The RAG-attribution data flow, end to end</span>
+
+    <div class="refs">
+      <ol>
+        <li id="r1">Enhancing Training Data Attribution for LLMs with Fitting Error Consideration (DDA), EMNLP 2024. <a href="https://aclanthology.org/2024.emnlp-main.782/">aclanthology.org/2024.emnlp-main.782</a></li>
+        <li id="r2">Revisiting Data Attribution for Influence Functions, 2025. <a href="https://arxiv.org/html/2508.07297v1">arxiv.org/html/2508.07297v1</a></li>
+        <li id="r3">Ghorbani &amp; Zou, “Data Shapley: Equitable Valuation of Data for ML,” 2019. <a href="https://arxiv.org/abs/1904.02868">arxiv.org/abs/1904.02868</a></li>
+        <li id="r4">“Bittensor Protocol: A Critical and Empirical Analysis,” 2025. <a href="https://arxiv.org/html/2507.02951v1">arxiv.org/html/2507.02951v1</a></li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.querySelectorAll('.q').forEach(function (q) {
+    var correct = parseInt(q.dataset.correct, 10);
+    var fb = q.querySelector('.feedback');
+    var msgs = {
+      A0:'Not quite — baking into one model means the split is an estimate, not a fact.',
+      A1:'Right. Fine-tuning one model fuses everyone’s data; you can only estimate the split, and contributors can dispute it.',
+      A2:'No — nothing about baked-in attribution is trivial or exact.',
+      B0:'Right. Retrieval gives you a literal log of which chunks were used — pay against it.',
+      B1:'No — in RAG the knowledge stays in the store, not the weights.',
+      B2:'No — retrieval avoids retraining entirely; that’s its whole advantage.',
+      C0:'No — owned adapters are attributable; that’s the point of modular ownership.',
+      C1:'Not quite — it isn’t pure retrieval; a router decides, which is fuzzier than a chunk log.',
+      C2:'Right. Adapter routing sits in the middle — attributable, but via a fuzzier signal than retrieval.'
+    };
+    var letter = q.previousElementSibling; // not used; label by index
+    q.querySelectorAll('.choice').forEach(function (btn, i) {
+      btn.addEventListener('click', function () {
+        q.querySelectorAll('.choice').forEach(function (b){ b.classList.remove('correct','wrong'); });
+        var qid = (q.querySelector('p strong').textContent.trim().charAt(0));
+        if (i === correct) { btn.classList.add('correct'); }
+        else { btn.classList.add('wrong'); q.querySelectorAll('.choice')[correct].classList.add('correct'); }
+        fb.textContent = msgs[qid + i] || (i === correct ? 'Correct.' : 'Try again.');
+      });
+    });
+  });
+</script>
+</body>
+</html>

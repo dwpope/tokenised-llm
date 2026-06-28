@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glossary — Tokenised LLM</title>
+<link rel="stylesheet" href="../assets/lesson.css">
+<style>
+  dl { margin: 2rem 0; }
+  dt { font-weight: 600; margin-top: 1.4rem; font-size: 1.02rem; }
+  dd { margin: .3rem 0 0; color: var(--ink-soft); }
+  @media (max-width: 480px){ body{ padding:2.2rem 1.2rem 5rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Tokenised LLM · Reference</p>
+  <h1>Glossary</h1>
+  <p class="dek">The shared vocabulary for the course. Every lesson uses these terms the same way.</p>
+
+  <dl>
+    <dt>Tokenised LLM</dt>
+    <dd>An LLM system where the people who contributed knowledge are paid (in tokens or money) whenever someone else's query uses that knowledge. Two layers: <em>attribution</em> and <em>settlement</em>.</dd>
+
+    <dt>Attribution</dt>
+    <dd>Determining which contributions were responsible for a given output, and how much. The hard part of a tokenised LLM.</dd>
+
+    <dt>Settlement / reward layer</dt>
+    <dd>Metering usage and splitting payment by attribution. The comparatively easy part — standard payments / smart-contract plumbing.</dd>
+
+    <dt>Baking (weights)</dt>
+    <dd>Folding knowledge into the model's parameters during training. Powerful, but blends every contribution together, so attribution becomes approximate and expensive.</dd>
+
+    <dt>Retrieval (RAG)</dt>
+    <dd>Keeping knowledge as separate documents in a store and pulling the relevant pieces in at query time. The base model reasons; the store supplies knowledge. Because you know which chunks were retrieved, attribution is provable.</dd>
+
+    <dt>Bake ↔ Retrieve spectrum</dt>
+    <dd>The core mental model. The more knowledge lives in retrievable, discrete units, the easier attribution is. The more it's baked into weights, the harder.</dd>
+
+    <dt>RAG</dt>
+    <dd>Retrieval-Augmented Generation. The architecture underlying the retrieve end of the spectrum.</dd>
+
+    <dt>Influence functions</dt>
+    <dd>A method to estimate how much a single training example affected a model's behaviour, without retraining. Approximate and assumption-laden at LLM scale (e.g. TRAK).</dd>
+
+    <dt>TRAK</dt>
+    <dd>A scalable influence-function-style attribution method that approximates influence using a few model checkpoints. Still approximate.</dd>
+
+    <dt>Data Shapley</dt>
+    <dd>A game-theory method (Shapley values) for fairly dividing credit among data contributors. Provably fair, but exact computation needs exhaustive retraining, so it's intractable at scale; used via approximations.</dd>
+
+    <dt>LoRA adapter</dt>
+    <dd>A small trainable module bolted onto a base model. Can be owned by a contributor, so activating it is attributable. (Modular-ownership approach.)</dd>
+
+    <dt>Mixture of Experts (MoE)</dt>
+    <dd>Architecture where a router sends each query to a subset of "expert" sub-networks. If experts are owned, routing becomes an attribution signal.</dd>
+
+    <dt>Proof of Contribution</dt>
+    <dd>A contributor-supplied or protocol-defined function that scores how much / what quality a contribution adds (term used by Vana's DataDAOs).</dd>
+
+    <dt>Stake-weighting</dt>
+    <dd>Distributing rewards in proportion to how many tokens a participant has staked. The recurring failure mode: rewards track stake, not contribution quality (seen in both Bittensor and Vana).</dd>
+  </dl>
+
+  <div class="lesson-footer">
+    <a href="../index.html">← Course home</a>
+    <a href="../lessons/0001-bake-vs-retrieve.html">Lesson 01</a>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,203 @@
+/* Shared stylesheet for the Tokenised LLM course.
+   Tufte-inspired: generous margins, readable measure, restrained colour.
+   Every lesson links this file so the course reads as one consistent thing. */
+
+:root {
+  --ink:        #1a1a17;
+  --ink-soft:   #45463f;
+  --paper:      #fdfcf8;
+  --rule:       #e0ddd2;
+  --accent:     #9a3412;   /* burnt sienna — used sparingly */
+  --accent-soft:#fbeae1;
+  --retrieve:   #2f6f4f;   /* green = attributable */
+  --bake:       #9a3412;   /* sienna = hard to attribute */
+  --code-bg:    #f3f1e8;
+  --measure:    34rem;     /* readable line length */
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 18px; }
+
+body {
+  font-family: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.55;
+  margin: 0;
+  padding: 4rem 2rem 8rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: var(--measure); margin: 0 auto; }
+
+/* Breadcrumb / course position */
+.eyebrow {
+  font-family: ui-sans-serif, -apple-system, "Helvetica Neue", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 0.5rem;
+}
+
+h1 {
+  font-size: 2.1rem;
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.4rem;
+}
+
+.dek {
+  font-size: 1.12rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 0 0 2.5rem;
+}
+
+h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 2.8rem 0 0.8rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--rule);
+}
+
+h3 { font-size: 1.05rem; font-weight: 600; margin: 1.8rem 0 0.4rem; }
+
+p { margin: 0 0 1.1rem; }
+
+a { color: var(--accent); text-underline-offset: 2px; }
+
+strong { font-weight: 600; }
+
+/* Sans-serif accents for labels, captions, UI */
+.sans {
+  font-family: ui-sans-serif, -apple-system, "Helvetica Neue", sans-serif;
+}
+
+/* Citation links — small superscript-ish refs */
+.cite {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.7rem;
+  vertical-align: super;
+  line-height: 0;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 0 0.1em;
+}
+
+/* The bake <-> retrieve spectrum bar */
+.spectrum {
+  margin: 2rem 0;
+  font-family: ui-sans-serif, sans-serif;
+}
+.spectrum-bar {
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--retrieve) 0%, #b9a24a 50%, var(--bake) 100%);
+  margin-bottom: 0.5rem;
+}
+.spectrum-ends { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--ink-soft); }
+.spectrum-ends b { display:block; color: var(--ink); font-size: 0.92rem; }
+
+/* Margin / aside note */
+.aside {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  border-left: 2px solid var(--rule);
+  padding-left: 1rem;
+  margin: 1.6rem 0;
+}
+
+/* Key idea callout */
+.keyidea {
+  background: var(--accent-soft);
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+  margin: 2rem 0;
+}
+.keyidea .label {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 0.4rem;
+}
+.keyidea p:last-child { margin-bottom: 0; }
+
+/* Code */
+code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.82em;
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
+/* Table */
+table { width: 100%; border-collapse: collapse; margin: 1.6rem 0; font-size: 0.9rem; }
+.sans table, table.sans { font-family: ui-sans-serif, sans-serif; }
+th, td { text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: ui-sans-serif, sans-serif; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+
+/* Interactive task box */
+.task {
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 1.6rem;
+  margin: 2.4rem 0;
+  background: #fff;
+}
+.task h2 { border: 0; padding: 0; margin: 0 0 0.3rem; }
+.task .label {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+}
+.choices { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+.choice {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.9rem;
+  text-align: left;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--paper);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.choice:hover { border-color: var(--accent); }
+.choice.correct { border-color: var(--retrieve); background: #eef6f0; }
+.choice.wrong   { border-color: #b4453a; background: #fbecea; }
+.feedback {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.85rem;
+  margin-top: 0.8rem;
+  min-height: 1.2rem;
+  color: var(--ink-soft);
+}
+
+/* Footer nav */
+.lesson-footer {
+  margin-top: 3.5rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--rule);
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.85rem;
+}
+.lesson-footer a { display: inline-block; margin-right: 1.2rem; }
+.ask-teacher {
+  background: #f3f1e8;
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 1.6rem;
+}
+.ask-teacher b { color: var(--ink); }
+
+.refs { font-size: 0.78rem; font-family: ui-sans-serif, sans-serif; color: var(--ink-soft); }
+.refs ol { padding-left: 1.2rem; }
+.refs li { margin-bottom: 0.5rem; }

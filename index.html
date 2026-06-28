@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tokenised LLM — a feasibility course</title>
+<link rel="stylesheet" href="assets/lesson.css">
+<style>
+  /* Landing-page-only touches, mobile-first */
+  .hero { margin-bottom: 2.5rem; }
+  .lesson-list { list-style: none; padding: 0; margin: 0; }
+  .lesson-card {
+    display: block;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 1.1rem 1.3rem;
+    margin-bottom: 0.9rem;
+    text-decoration: none;
+    color: var(--ink);
+    background: #fff;
+    transition: border-color .15s, transform .1s;
+  }
+  .lesson-card:active { transform: scale(.99); }
+  .lesson-card:hover { border-color: var(--accent); }
+  .lesson-card .n {
+    font-family: ui-sans-serif, sans-serif;
+    font-size: 0.7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+  }
+  .lesson-card .t { font-size: 1.12rem; font-weight: 600; margin: .2rem 0 .25rem; }
+  .lesson-card .s { font-size: .9rem; color: var(--ink-soft); }
+  .lesson-card.soon { opacity: .55; pointer-events: none; }
+  .meta-links { margin-top: 2rem; font-family: ui-sans-serif, sans-serif; font-size: .85rem; }
+  .meta-links a { margin-right: 1.1rem; }
+  @media (max-width: 480px) {
+    body { padding: 2.2rem 1.2rem 5rem; }
+    h1 { font-size: 1.7rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <p class="eyebrow">A teach-yourself course</p>
+    <h1>Tokenised LLM</h1>
+    <p class="dek">Can you build an LLM that pays people when someone else's query uses their knowledge? A short, honest feasibility course.</p>
+  </div>
+
+  <ul class="lesson-list">
+    <li>
+      <a class="lesson-card" href="lessons/0001-bake-vs-retrieve.html">
+        <span class="n">Lesson 01 · Feasibility</span>
+        <div class="t">The hard part isn't the tokens</div>
+        <div class="s">The one mental model — Bake ↔ Retrieve — that lets you judge any pitch on sight. Ends with a 3-question check.</div>
+      </a>
+    </li>
+    <li>
+      <a class="lesson-card" href="lessons/0002-chunk-to-payout.html">
+        <span class="n">Lesson 02 · Feasibility</span>
+        <div class="t">From chunk to payout</div>
+        <div class="s">The money path end to end, an interactive payout-split calculator, and the gap that decides if it's honest: retrieved ≠ used.</div>
+      </a>
+    </li>
+    <li>
+      <span class="lesson-card soon">
+        <span class="n">Lesson 03 · Coming next</span>
+        <div class="t">Why reward layers drift to stake</div>
+        <div class="s">The failure mode shared by Bittensor and Vana: paying stake, not contribution quality.</div>
+      </span>
+    </li>
+  </ul>
+
+  <div class="meta-links">
+    <a href="reference/GLOSSARY.html">📖 Glossary</a>
+    <span style="color:var(--ink-soft)">More lessons appear here as your teacher builds them.</span>
+  </div>
+
+</div>
+</body>
+</html>

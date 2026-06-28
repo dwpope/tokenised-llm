@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 02 · From chunk to payout</title>
+<link rel="stylesheet" href="../assets/lesson.css">
+<style>
+  /* Lesson-02-specific: the pipeline flow + the split calculator */
+  .flow { list-style:none; padding:0; margin:2rem 0; }
+  .flow li {
+    position:relative; padding:0.9rem 1rem 0.9rem 3rem; margin:0 0 0.6rem;
+    border:1px solid var(--rule); border-radius:10px; background:#fff;
+    font-family:ui-sans-serif,sans-serif; font-size:0.9rem;
+  }
+  .flow li .num {
+    position:absolute; left:0.8rem; top:50%; transform:translateY(-50%);
+    width:1.5rem; height:1.5rem; border-radius:50%; background:var(--accent); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;
+  }
+  .flow li b { color:var(--ink); }
+  .flow li.payout { border-color:var(--retrieve); background:#eef6f0; }
+  .flow li.payout .num { background:var(--retrieve); }
+
+  .calc { font-family:ui-sans-serif,sans-serif; }
+  .calc table { font-size:0.88rem; }
+  .calc td.num, .calc th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .policy-btns { display:flex; gap:0.5rem; flex-wrap:wrap; margin:1rem 0; }
+  .policy-btns button {
+    font-family:ui-sans-serif,sans-serif; font-size:0.82rem; padding:0.5rem 0.8rem;
+    border:1px solid var(--rule); border-radius:8px; background:var(--paper); cursor:pointer;
+  }
+  .policy-btns button.active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); font-weight:600; }
+  .bar { height:10px; border-radius:5px; background:var(--retrieve); }
+  @media (max-width:480px){ body{ padding:2.2rem 1.2rem 5rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Tokenised LLM · Lesson 02 · Feasibility</p>
+  <h1>From chunk to payout</h1>
+  <p class="dek">Tracing the auditable log end to end — and the one gap that decides whether the whole thing is honest.</p>
+
+  <p>Lesson 01 ended on a promise: at the <em>retrieve</em> end of the spectrum, you get an auditable log you can pay against. This lesson cashes that promise — literally — and then shows you the crack in it that every serious builder has to confront.<a class="cite" href="#r1">1</a></p>
+
+  <h2>The pipeline, end to end</h2>
+  <p>A retrieval-based tokenised LLM is a six-step assembly line. Money is made at the end and split backwards.</p>
+
+  <ol class="flow">
+    <li><span class="num">1</span><b>Contribute.</b> A contributor adds a document. It's split into <em>chunks</em>, each turned into an embedding (a vector) and stored with an <b>owner ID</b>.</li>
+    <li><span class="num">2</span><b>Ask.</b> A user submits a query. It's embedded into the same vector space.</li>
+    <li><span class="num">3</span><b>Retrieve.</b> The store returns the top-k nearest chunks, each with a <em>similarity score</em>.</li>
+    <li><span class="num">4</span><b>Generate.</b> The base model writes an answer using those chunks as context.</li>
+    <li><span class="num">5</span><b>Meter.</b> Log which chunks were in play, and a <em>weight</em> for each (e.g. its similarity share).</li>
+    <li class="payout"><span class="num">6</span><b>Settle.</b> Split the query's revenue across the chunk owners, in proportion to those weights.</li>
+  </ol>
+
+  <div class="keyidea">
+    <div class="label">The shape of it</div>
+    <p>Notice steps 1–4 are just ordinary RAG — thousands of products do this. The tokenisation is <em>only</em> steps 5 and 6: keep an owner ID on every chunk, and write a usage log you can pay against. That's why the reward layer is "the easy part."</p>
+  </div>
+
+  <h2>Worked example — splitting one query</h2>
+  <p>A user asks a question. Three chunks are retrieved. The query earned <b>£0.10</b> in revenue. Here's a <b>similarity-weighted</b> split — try the other policies to see who wins and loses.</p>
+
+  <div class="calc task">
+    <div class="policy-btns">
+      <button data-policy="sim" class="active">Similarity-weighted</button>
+      <button data-policy="equal">Equal split</button>
+      <button data-policy="topfn">Top hit takes all</button>
+    </div>
+    <table>
+      <thead><tr><th>Chunk (owner)</th><th class="num">Similarity</th><th class="num">Share</th><th class="num">Payout</th><th>Bar</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p class="feedback" id="policy-note"></p>
+  </div>
+
+  <h2>The crack: <em>retrieved</em> ≠ <em>used</em></h2>
+  <p>Here is the gap that decides everything. Step 5 assumes that a retrieved chunk was actually <em>used</em> to write the answer. Often it wasn't. The base model frequently answers from <strong>its own baked-in knowledge</strong> and then attaches a citation to the nearest retrieved chunk — a behaviour researchers call <em>post-rationalisation</em>.<a class="cite" href="#r2">2</a></p>
+
+  <p>The numbers are sobering. In long-form answers, <strong>50–90% of citations aren't fully supported</strong> by the source they point to, and citation-hallucination rates run <strong>11–57%</strong> across deployed models.<a class="cite" href="#r2">2</a> If you pay by "what was cited," you are paying for a story the model told about its own reasoning — not for the knowledge it truly used.</p>
+
+  <p class="aside">This is the feasibility crux of the whole idea. It doesn't kill a tokenised LLM — but it means a credible system needs more than a retrieval log. It needs a <em>faithfulness check</em>: evidence that the answer actually depends on the chunk (e.g. does the answer change if you remove it?). That check is the real engineering, and the real cost.</p>
+
+  <h2>So weighting is a <em>policy</em>, and policies get gamed</h2>
+  <p>Because "how much did this chunk contribute" is never handed to you cleanly, you must <em>choose</em> a rule — and every rule has an attack:</p>
+  <table>
+    <tr><th>Policy</th><th>Attack it invites</th></tr>
+    <tr><td>Similarity-weighted</td><td>Flood the store with near-duplicate chunks to capture retrieval.</td></tr>
+    <tr><td>Equal split among retrieved</td><td>Stuff many thin chunks so more of yours get pulled in.</td></tr>
+    <tr><td>Model-reported citations</td><td>Rewards post-rationalised citations — pays for hallucinated credit.</td></tr>
+  </table>
+
+  <!-- INTERACTIVE TASK -->
+  <div class="task">
+    <div class="label">Your task · 2 min</div>
+    <h2 style="margin-top:.2rem">Spot the honest design</h2>
+    <p class="sans" style="font-size:.9rem;color:var(--ink-soft)">Tap to check — instant feedback.</p>
+
+    <div class="q" data-correct="2">
+      <p><strong>A.</strong> Your system pays owners by the model's own citations. A contributor notices answers cite their chunk even when the answer is clearly from general knowledge. What's happening?</p>
+      <div class="choices">
+        <button class="choice">Retrieval scored it highest</button>
+        <button class="choice">Their chunk was decisive</button>
+        <button class="choice">Post-rationalised, unfaithful citation</button>
+      </div>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="q" data-correct="1">
+      <p><strong>B.</strong> You want evidence a chunk was <em>actually used</em>, not just retrieved. Which check gets you closest?</p>
+      <div class="choices">
+        <button class="choice">Raise the retrieval similarity threshold</button>
+        <button class="choice">Test whether removing it changes the answer</button>
+        <button class="choice">Count how often it is retrieved</button>
+      </div>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="q" data-correct="0">
+      <p><strong>C.</strong> A contributor uploads 200 near-identical paraphrases of one fact. Under similarity-weighted payout, what's the risk?</p>
+      <div class="choices">
+        <button class="choice">They capture an outsized revenue share</button>
+        <button class="choice">Their chunks never get retrieved</button>
+        <button class="choice">The base model ignores all chunks</button>
+      </div>
+      <div class="feedback"></div>
+    </div>
+  </div>
+
+  <h2>The win</h2>
+  <p>You can now draw the full money path — contribute → retrieve → generate → meter → settle — and, more importantly, you can name the exact place it gets dishonest: the leap from <em>retrieved</em> to <em>actually used</em>. When someone pitches "we fairly pay contributors via RAG," your question is now sharp: <em>how do you verify the answer truly depended on the chunk you're paying for?</em></p>
+
+  <div class="ask-teacher">
+    <b>I'm your teacher — ask me anything.</b> Want the "remove-it-and-see" faithfulness check (called <em>leave-one-out</em> / ablation) spelled out? Or how Data Shapley reappears here as the principled version of it? Just ask.
+  </div>
+
+  <h3>Read this next (primary source)</h3>
+  <p><a href="https://arxiv.org/pdf/2412.18004">“Correctness is not Faithfulness in Retrieval Augmented Generation Attributions”</a> (Wallat et al., 2025). Read the intro and the faithfulness definition — it's the cleanest statement of why a citation isn't proof of use.<a class="cite" href="#r2">2</a></p>
+
+  <div class="lesson-footer">
+    <a href="../index.html">🏠 Course home</a>
+    <a href="../reference/GLOSSARY.html">📖 Glossary</a>
+    <a href="0001-bake-vs-retrieve.html">← Lesson 01</a>
+    <span class="sans" style="color:var(--ink-soft)">Next → Lesson 03: Why reward layers drift to stake (Bittensor &amp; Vana)</span>
+
+    <div class="refs">
+      <ol>
+        <li id="r1">Builds on Lesson 01's Bake ↔ Retrieve spectrum.</li>
+        <li id="r2">Wallat et al., “Correctness is not Faithfulness in RAG Attributions,” SIGIR ICTIR 2025. <a href="https://arxiv.org/pdf/2412.18004">arxiv.org/pdf/2412.18004</a></li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // --- Payout calculator ---
+  var chunks = [
+    { owner: "Alice", sim: 0.82 },
+    { owner: "Bob",   sim: 0.66 },
+    { owner: "Cara",  sim: 0.41 }
+  ];
+  var REVENUE = 0.10;
+  var notes = {
+    sim:   "Similarity-weighted: each owner's share is their score ÷ total score. Closest chunk earns most — but flooding near-duplicates can game it.",
+    equal: "Equal split: every retrieved chunk earns the same, regardless of relevance. Simple, but rewards stuffing many thin chunks.",
+    topfn: "Top hit takes all: only the single closest chunk is paid. Brutal, low-dispute — but one near-miss and a real contributor earns nothing."
+  };
+
+  function shares(policy) {
+    if (policy === "equal") return chunks.map(function(){ return 1 / chunks.length; });
+    if (policy === "topfn") {
+      var max = Math.max.apply(null, chunks.map(function(c){ return c.sim; }));
+      return chunks.map(function(c){ return c.sim === max ? 1 : 0; });
+    }
+    var total = chunks.reduce(function(s,c){ return s + c.sim; }, 0);
+    return chunks.map(function(c){ return c.sim / total; });
+  }
+
+  function render(policy) {
+    var sh = shares(policy);
+    var rows = chunks.map(function(c, i) {
+      var pct = sh[i] * 100;
+      var pay = (sh[i] * REVENUE);
+      return "<tr><td>" + c.owner + "</td>" +
+             "<td class='num'>" + c.sim.toFixed(2) + "</td>" +
+             "<td class='num'>" + pct.toFixed(0) + "%</td>" +
+             "<td class='num'>£" + pay.toFixed(3) + "</td>" +
+             "<td><div class='bar' style='width:" + Math.max(2,pct) + "%'></div></td></tr>";
+    }).join("");
+    document.getElementById("rows").innerHTML = rows;
+    document.getElementById("policy-note").textContent = notes[policy];
+  }
+
+  document.querySelectorAll(".policy-btns button").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      document.querySelectorAll(".policy-btns button").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      render(btn.dataset.policy);
+    });
+  });
+  render("sim");
+
+  // --- Quiz ---
+  document.querySelectorAll(".q").forEach(function (q) {
+    var correct = parseInt(q.dataset.correct, 10);
+    var fb = q.querySelector(".feedback");
+    var msgs = {
+      A0:"Not the point here — retrieval ranking doesn't prove the answer used it.",
+      A1:"No — the giveaway is the answer came from general knowledge, not their chunk.",
+      A2:"Right. The model answered from its own weights and pinned a citation on afterwards — unfaithful attribution.",
+      B0:"No — a higher threshold changes what's retrieved, not whether it was used.",
+      B1:"Right. Leave-one-out: if removing the chunk changes the answer, it was genuinely used. That's the faithfulness check.",
+      B2:"No — retrieval frequency measures popularity, not whether any given answer depended on it.",
+      C0:"Right. Near-duplicates each score high, so one fact captures many slots and an outsized share — the classic sybil/flooding attack.",
+      C1:"No — near-duplicates score high, so they get retrieved more, not less.",
+      C2:"No — the chunks are highly relevant; the model is likely to use them, which is the problem."
+    };
+    q.querySelectorAll(".choice").forEach(function (btn, i) {
+      btn.addEventListener("click", function () {
+        q.querySelectorAll(".choice").forEach(function (b){ b.classList.remove("correct","wrong"); });
+        var qid = q.querySelector("p strong").textContent.trim().charAt(0);
+        if (i === correct) { btn.classList.add("correct"); }
+        else { btn.classList.add("wrong"); q.querySelectorAll(".choice")[correct].classList.add("correct"); }
+        fb.textContent = msgs[qid + i] || (i === correct ? "Correct." : "Try again.");
+      });
+    });
+  });
+</script>
+</body>
+</html>
