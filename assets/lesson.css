@@ -12,7 +12,31 @@
   --retrieve:   #2f6f4f;   /* green = attributable */
   --bake:       #9a3412;   /* sienna = hard to attribute */
   --code-bg:    #f3f1e8;
+  --surface:    #ffffff;   /* card backgrounds */
+  --ok-bg:      #eef6f0;   /* correct-answer wash */
+  --bad-bg:     #fbecea;   /* wrong-answer wash */
+  --soft-bg:    #f3f1e8;   /* muted callout (ask-teacher) */
   --measure:    34rem;     /* readable line length */
+}
+
+/* Dark mode — follows the OS / phone setting automatically.
+   Only the palette flips; every rule below reads these variables. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink:        #e8e6df;
+    --ink-soft:   #a7a79b;
+    --paper:      #15140e;
+    --rule:       #34332b;
+    --accent:     #e8895a;   /* lifted sienna for dark-bg contrast */
+    --accent-soft:#2b1a12;
+    --retrieve:   #5fc08d;   /* brighter green on dark */
+    --bake:       #e8895a;
+    --code-bg:    #24231b;
+    --surface:    #1e1d15;
+    --ok-bg:      #16271d;
+    --bad-bg:     #2e1714;
+    --soft-bg:    #201f16;
+  }
 }
 
 * { box-sizing: border-box; }
@@ -148,7 +172,7 @@ th { font-family: ui-sans-serif, sans-serif; font-size: 0.72rem; letter-spacing:
   border-radius: 12px;
   padding: 1.6rem;
   margin: 2.4rem 0;
-  background: #fff;
+  background: var(--surface);
 }
 .task h2 { border: 0; padding: 0; margin: 0 0 0.3rem; }
 .task .label {
@@ -168,8 +192,8 @@ th { font-family: ui-sans-serif, sans-serif; font-size: 0.72rem; letter-spacing:
   transition: border-color .15s, background .15s;
 }
 .choice:hover { border-color: var(--accent); }
-.choice.correct { border-color: var(--retrieve); background: #eef6f0; }
-.choice.wrong   { border-color: #b4453a; background: #fbecea; }
+.choice.correct { border-color: var(--retrieve); background: var(--ok-bg); }
+.choice.wrong   { border-color: #b4453a; background: var(--bad-bg); }
 .feedback {
   font-family: ui-sans-serif, sans-serif;
   font-size: 0.85rem;
@@ -188,7 +212,7 @@ th { font-family: ui-sans-serif, sans-serif; font-size: 0.72rem; letter-spacing:
 }
 .lesson-footer a { display: inline-block; margin-right: 1.2rem; }
 .ask-teacher {
-  background: #f3f1e8;
+  background: var(--soft-bg);
   border-radius: 8px;
   padding: 0.9rem 1.1rem;
   font-family: ui-sans-serif, sans-serif;
